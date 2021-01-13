@@ -1,0 +1,23 @@
+#!/bin/bash
+
+kubectl delete -f cvat-db-deployment.yaml
+kubectl delete -f cvat-deployment.yaml
+kubectl delete -f cvat-proxy-deployment.yaml
+kubectl delete -f cvat-redis-deployment.yaml
+kubectl delete -f cvat-ui-deployment.yaml
+kubectl delete -f cvat-configmap.yaml
+
+if [ "$1" = "allofit" ]
+then
+kubectl delete -f cvat-db-service.yaml
+kubectl delete -f cvat-proxy-service.yaml
+kubectl delete -f cvat-redis-service.yaml
+kubectl delete -f cvat-service.yaml
+kubectl delete -f cvat-ui-service.yaml
+
+kubectl delete -f cvat-data-persistentvolumeclaim.yaml
+kubectl delete -f cvat-db-persistentvolumeclaim.yaml
+kubectl delete -f cvat-keys-persistentvolumeclaim.yaml
+kubectl delete -f cvat-logs-persistentvolumeclaim.yaml
+kubectl delete -f cvat-models-persistentvolumeclaim.yaml
+fi

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: cvat-logs
+  name: cvat-logs
+spec:
+  storageClassName: rbd
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1G
