@@ -19,23 +19,12 @@ spec:
       labels:
         io.kompose.service: cvat
     spec:
-      initContainers:
-        - name: chown
-          image: onepanel/cvat:0.17.0_cvat.1.0.0
-          volumeMounts:
-            - mountPath: /home/django/data
-              name: cvat-data
-            - mountPath: /home/django/keys
-              name: cvat-keys
-            - mountPath: /home/django/logs
-              name: cvat-logs
-            - mountPath: /home/django/models
-              name: cvat-models
-          command: ["chown"]
-          args: ["-R", "django:django", "/home/django/"]
-
+      securityContext:
+        fsGroup: 1000
       containers:
       - env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: cvat.settings.custom
         - name: ALLOWED_HOSTS
           value: '*'
         - name: CVAT_POSTGRES_HOST
@@ -52,10 +41,16 @@ spec:
         - name: CVAT_REDIS_HOST
           value: cvat-redis
         - name: DJANGO_MODWSGI_EXTRA_ARGS
-        image: onepanel/cvat:0.17.0_cvat.1.0.0
+        image: myelintek/cvat:v1.1.0-mls
         name: cvat
+        ports:
+          - containerPort: 8080
         resources: {}
         volumeMounts:
+        - mountPath: /home/django/cvat/settings/custom.py
+          subPath: custom.py
+          name: cvat-settings
+          readOnly: true
         - mountPath: /home/django/data
           name: cvat-data
         - mountPath: /home/django/keys
@@ -64,6 +59,8 @@ spec:
           name: cvat-logs
         - mountPath: /home/django/models
           name: cvat-models
+        securityContext:
+          allowPrivilegeEscalation: false
       restartPolicy: Always
       volumes:
       - name: cvat-data
@@ -78,3 +75,9 @@ spec:
       - name: cvat-models
         persistentVolumeClaim:
           claimName: cvat-models
+      - name: cvat-settings
+        configMap:
+          name: cvat-config
+          items:
+            - key: cvatSettings
+              path: custom.py

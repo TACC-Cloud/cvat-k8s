@@ -5,6 +5,21 @@ metadata:
 data:
   cvatSettings: |
     from cvat.settings.production import *
+    DEBUG = False
+
+    for key in RQ_QUEUES:
+        RQ_QUEUES[key]['HOST'] = os.getenv('CVAT_REDIS_HOST', 'cvat_redis')
+
+    CACHEOPS_REDIS['host'] = os.getenv('CVAT_REDIS_HOST', 'cvat_redis')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': os.getenv('CVAT_POSTGRES_HOST', 'cvat_db'),
+            'NAME': os.getenv('CVAT_POSTGRES_DBNAME', 'cvat'),
+            'USER': os.getenv('CVAT_POSTGRES_USER', 'root'),
+            'PASSWORD': os.getenv('CVAT_POSTGRES_PASSWORD', ''),
+        }
+    }
 
     # add custom apps here
     import ldap

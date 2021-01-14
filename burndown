@@ -10,7 +10,7 @@ kubectl delete -f cvat-configmap.yaml
 if [ "$1" = "allofit" ]
 then
 kubectl delete -f cvat-db-service.yaml
-kubectl delete -f cvat-proxy-service.yaml
+#kubectl delete -f cvat-proxy-service.yaml
 kubectl delete -f cvat-redis-service.yaml
 kubectl delete -f cvat-service.yaml
 kubectl delete -f cvat-ui-service.yaml
