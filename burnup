@@ -1,0 +1,21 @@
+#!/bin/bash
+
+kubectl apply -f cvat-configmap.yaml
+kubectl apply -f cvat-data-persistentvolumeclaim.yaml
+kubectl apply -f cvat-db-persistentvolumeclaim.yaml
+kubectl apply -f cvat-keys-persistentvolumeclaim.yaml
+kubectl apply -f cvat-logs-persistentvolumeclaim.yaml
+kubectl apply -f cvat-models-persistentvolumeclaim.yaml
+
+kubectl apply -f cvat-db-service.yaml
+kubectl apply -f cvat-proxy-service.yaml
+kubectl apply -f cvat-redis-service.yaml
+kubectl apply -f cvat-service.yaml
+kubectl apply -f cvat-ui-service.yaml
+
+kubectl apply -f cvat-db-deployment.yaml
+kubectl apply -f cvat-deployment.yaml
+kubectl apply -f cvat-proxy-deployment.yaml
+kubectl apply -f cvat-redis-deployment.yaml
+kubectl apply -f cvat-ui-deployment.yaml
+

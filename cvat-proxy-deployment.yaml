@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: cvat-proxy
+  name: cvat-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: cvat-proxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: cvat-proxy
+    spec:
+      containers:
+      - args:
+        - /bin/sh
+        - -c
+        - nginx -g 'daemon off;'
+        env:
+        - name: CVAT_HOST
+          value: localhost
+        image: nginx:stable-alpine
+        name: cvat-proxy
+        ports:
+        - containerPort: 80
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          name: cvat-nginx-config
+          readOnly: true
+        - mountPath: /etc/nginx/conf.d/cvat.conf
+          subPath: cvat.conf
+          name: cvat-proxy-config
+          readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: cvat-nginx-config
+        configMap:
+          name: cvat-config
+          items:
+            - key: nginxConfig
+              path: nginx.conf
+      - name: cvat-proxy-config
+        configMap:
+          name: cvat-config
+          items:
+            - key: cvatProxyConfig
+              path: cvat.conf

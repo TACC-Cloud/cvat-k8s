@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: cvat
+  name: cvat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: cvat
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: cvat
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: cvat.settings.custom
+        - name: ALLOWED_HOSTS
+          value: '*'
+        - name: CVAT_POSTGRES_HOST
+          value: cvat-db
+        - name: CVAT_POSTGRES_DBNAME
+          value: cvat
+        - name: CVAT_POSTGRES_USER
+          value: cvat
+        - name: CVAT_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgres-password
+              name: cvat-secrets
+        - name: CVAT_REDIS_HOST
+          value: cvat-redis
+        - name: DJANGO_MODWSGI_EXTRA_ARGS
+        image: openvino/cvat_server:v1.3.0
+        name: cvat
+        ports:
+          - containerPort: 8080
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/django/cvat/settings/custom.py
+          subPath: custom.py
+          name: cvat-settings
+          readOnly: true
+        - mountPath: /home/django/data
+          name: cvat-data
+        - mountPath: /home/django/keys
+          name: cvat-keys
+        - mountPath: /home/django/logs
+          name: cvat-logs
+        - mountPath: /home/django/models
+          name: cvat-models
+        securityContext:
+          allowPrivilegeEscalation: false
+      restartPolicy: Always
+      volumes:
+      - name: cvat-data
+        persistentVolumeClaim:
+          claimName: cvat-data
+      - name: cvat-keys
+        persistentVolumeClaim:
+          claimName: cvat-keys
+      - name: cvat-logs
+        persistentVolumeClaim:
+          claimName: cvat-logs
+      - name: cvat-models
+        persistentVolumeClaim:
+          claimName: cvat-models
+      - name: cvat-settings
+        configMap:
+          name: cvat-config
+          items:
+            - key: cvatSettings
+              path: custom.py
